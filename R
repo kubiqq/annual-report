@@ -1,0 +1,177 @@
+library(ggplot2)
+library(metR)
+library(readxl)
+library(data.table)
+library(date)
+library(qwraps2)
+library(latex2exp)
+
+setwd('/cloud/project')
+###Подготовка данных
+CTD_2021 <- as.data.table(read_excel("CTD 2021.xlsx"))
+names(CTD_2021) <- c("Date", "Depth", "Oxy", "Temp", "Sal", "Dens")
+CTD_2021$day <- as.numeric(format(CTD_2021$Date,"%d"))
+CTD_2021$month <- as.factor(format(CTD_2021$Date,"%m"))
+CTD_2021$Date <- as.Date(CTD_2021$Date, tz = "")
+CTD_2021[,dayGroup:=cut(day,
+                        breaks=c(0,10,20,Inf),
+                        include.lowest=TRUE,
+                        labels=c("0-10","10-20" ,">20"))]
+CTD_2021[,depthGroup:=cut(Depth,
+                          breaks=c(0,10,20,30,40,50,Inf),
+                          include.lowest=TRUE,
+                          labels=c("0-10","10-20","20-30", "30-40", "40-50", ">50"))]
+
+# ********************************  Sal  ********************************
+
+#Boxplot
+ggplot(CTD_2021, aes(x = CTD_2021$month, y = CTD_2021$Sal, color = CTD_2021$depthGroup)) +  # ggplot function
+  geom_boxplot()+
+  ylim(20, 30) +
+  labs(title = "Динамика солености на станции Д-1 по глубинам", 
+       x = "месяц", y = "Соленость, PSU", color = "Глубины, м")
+
+###Сводная таблица
+our_summary1 <-
+  list("SALINITY; PSU" =
+         list("min"       = ~ min(Sal),
+              "max"       = ~ max(Sal),
+              "mean (sd)" = ~ qwraps2::mean_sd(Sal)
+         ))
+
+by_depth_02 <- summary_table(subset(CTD_2021, month == "02"), summaries = our_summary1, by = c("depthGroup"))
+by_depth_03 <- summary_table(subset(CTD_2021, month == "03"), summaries = our_summary1, by = c("depthGroup"))
+by_depth_04 <- summary_table(subset(CTD_2021, month == "04"), summaries = our_summary1, by = c("depthGroup"))
+by_depth_05 <- summary_table(subset(CTD_2021, month == "05"), summaries = our_summary1, by = c("depthGroup"))
+by_depth_06 <- summary_table(subset(CTD_2021, month == "06"), summaries = our_summary1, by = c("depthGroup"))
+by_depth_07 <- summary_table(subset(CTD_2021, month == "07"), summaries = our_summary1, by = c("depthGroup"))
+by_depth_08 <- summary_table(subset(CTD_2021, month == "08"), summaries = our_summary1, by = c("depthGroup"))
+by_depth_09 <- summary_table(subset(CTD_2021, month == "09"), summaries = our_summary1, by = c("depthGroup"))
+
+
+# ********************************  Temp  ********************************
+
+#Boxplot
+ggplot(CTD_2021, aes(x = CTD_2021$month, y = CTD_2021$Temp, color = CTD_2021$depthGroup)) +  #ggplot function
+  geom_boxplot() +
+ # ylim(20, 30) +
+  labs(title = "Динамика температуры на станции Д-1 по глубинам", 
+       x = "месяц", y = "Температура, (\u00B0C)", color = "Глубины, м")
+
+###Сводная таблица
+our_summary1 <-
+  list("Temp" =
+         list("min"       = ~ min(Temp),
+              "max"       = ~ max(Temp),
+              "mean (sd)" = ~ qwraps2::mean_sd(Temp)
+         ))
+
+by_depth_02 <- summary_table(subset(CTD_2021, month == "02"), summaries = our_summary1, by = c("depthGroup"))
+by_depth_03 <- summary_table(subset(CTD_2021, month == "03"), summaries = our_summary1, by = c("depthGroup"))
+by_depth_04 <- summary_table(subset(CTD_2021, month == "04"), summaries = our_summary1, by = c("depthGroup"))
+by_depth_05 <- summary_table(subset(CTD_2021, month == "05"), summaries = our_summary1, by = c("depthGroup"))
+by_depth_06 <- summary_table(subset(CTD_2021, month == "06"), summaries = our_summary1, by = c("depthGroup"))
+by_depth_07 <- summary_table(subset(CTD_2021, month == "07"), summaries = our_summary1, by = c("depthGroup"))
+by_depth_08 <- summary_table(subset(CTD_2021, month == "08"), summaries = our_summary1, by = c("depthGroup"))
+by_depth_09 <- summary_table(subset(CTD_2021, month == "09"), summaries = our_summary1, by = c("depthGroup"))
+
+# ********************************  CYCLOPS  ********************************
+
+CY_2021 <- as.data.table(read_excel("Cyclops_2021.xlsx"))
+names(CY_2021) <- c("Date", "Depth", "CDOM", "Turb", "Chl", "Chl2")
+CY_2021$day <- as.numeric(format(CY_2021$Date,"%d"))
+CY_2021$month <- as.factor(format(CY_2021$Date,"%m"))
+CY_2021$Date <- as.Date(CY_2021$Date, tz = "")
+CY_2021[,dayGroup:=cut(day,
+                        breaks=c(0,10,20,Inf),
+                        include.lowest=TRUE,
+                        labels=c("0-10","10-20" ,">20"))]
+CY_2021[,depthGroup:=cut(Depth,
+                          breaks=c(0,10,20,30,40,50,Inf),
+                          include.lowest=TRUE,
+                          labels=c("0-10","10-20","20-30", "30-40", "40-50", ">50"))]
+
+# ********************************  CDOM  ********************************
+#jpeg("rplot.jpg", width = 932, height = 662)
+#Boxplot
+ggplot(CY_2021, aes(x = CY_2021$month, y = CY_2021$CDOM, color = CY_2021$depthGroup)) +  # ggplot function
+  geom_boxplot()+
+  ylim(400, 1000) +
+  labs(title = "Динамика CDOM на станции Д-1 по глубинам", 
+       x = "месяц", y = "CDOM, RFU", color = "Глубины, м")
+
+###Сводная таблица
+our_summary1 <-
+  list("CDOM" =
+         list("min"       = ~ min(CDOM),
+              "max"       = ~ max(CDOM),
+              "mean (sd)" = ~ qwraps2::mean_sd(CDOM)
+         ))
+
+by_depth_02 <- summary_table(subset(CY_2021, month == "02"), summaries = our_summary1, by = c("depthGroup"))
+by_depth_03 <- summary_table(subset(CY_2021, month == "03"), summaries = our_summary1, by = c("depthGroup"))
+by_depth_04 <- summary_table(subset(CY_2021, month == "04"), summaries = our_summary1, by = c("depthGroup"))
+by_depth_05 <- summary_table(subset(CY_2021, month == "05"), summaries = our_summary1, by = c("depthGroup"))
+by_depth_06 <- summary_table(subset(CY_2021, month == "06"), summaries = our_summary1, by = c("depthGroup"))
+by_depth_07 <- summary_table(subset(CY_2021, month == "07"), summaries = our_summary1, by = c("depthGroup"))
+by_depth_08 <- summary_table(subset(CY_2021, month == "08"), summaries = our_summary1, by = c("depthGroup"))
+by_depth_09 <- summary_table(subset(CY_2021, month == "09"), summaries = our_summary1, by = c("depthGroup"))
+by_depth_10 <- summary_table(subset(CY_2021, month == "10"), summaries = our_summary1, by = c("depthGroup"))
+
+# ********************************  Turb  ********************************
+
+#Boxplot
+
+ggplot(CY_2021, aes(x = CY_2021$month, y = CY_2021$Turb, color = CY_2021$depthGroup)) +  # ggplot function
+  geom_boxplot()+
+  ylim(5, 20) +
+  labs(title = "Динамика мутности на станции Д-1 по глубинам", 
+       x = "месяц", y = "Turb, RFU", color = "Глубины, м")
+
+
+###Сводная таблица
+our_summary1 <-
+  list("Turb" =
+         list("min"       = ~ min(Turb),
+              "max"       = ~ max(Turb),
+              "mean (sd)" = ~ qwraps2::mean_sd(Turb)
+         ))
+
+by_depth_02 <- summary_table(subset(CY_2021, month == "02"), summaries = our_summary1, by = c("depthGroup"))
+by_depth_03 <- summary_table(subset(CY_2021, month == "03"), summaries = our_summary1, by = c("depthGroup"))
+by_depth_04 <- summary_table(subset(CY_2021, month == "04"), summaries = our_summary1, by = c("depthGroup"))
+by_depth_05 <- summary_table(subset(CY_2021, month == "05"), summaries = our_summary1, by = c("depthGroup"))
+by_depth_06 <- summary_table(subset(CY_2021, month == "06"), summaries = our_summary1, by = c("depthGroup"))
+by_depth_07 <- summary_table(subset(CY_2021, month == "07"), summaries = our_summary1, by = c("depthGroup"))
+by_depth_08 <- summary_table(subset(CY_2021, month == "08"), summaries = our_summary1, by = c("depthGroup"))
+by_depth_09 <- summary_table(subset(CY_2021, month == "09"), summaries = our_summary1, by = c("depthGroup"))
+by_depth_10 <- summary_table(subset(CY_2021, month == "10"), summaries = our_summary1, by = c("depthGroup"))
+
+# ********************************  Chl2  ********************************
+
+#Boxplot
+
+ggplot(CY_2021, aes(x = CY_2021$month, y = CY_2021$Chl2, color = CY_2021$depthGroup)) +  # ggplot function
+  geom_boxplot()+
+  ylim(0, 6) +
+  labs(title = "Динамика хлорофилла на станции Д-1 по глубинам", 
+       x = "месяц", y = "Хлорофилл, мкг/л", color = "Глубины, м")
+
+
+###Сводная таблица
+our_summary1 <-
+  list("Chl2" =
+         list("min"       = ~ min(Chl2),
+              "max"       = ~ max(Chl2),
+              "mean (sd)" = ~ qwraps2::mean_sd(Chl2)
+         ))
+
+by_depth_02 <- summary_table(subset(CY_2021, month == "02"), summaries = our_summary1, by = c("depthGroup"))
+by_depth_03 <- summary_table(subset(CY_2021, month == "03"), summaries = our_summary1, by = c("depthGroup"))
+by_depth_04 <- summary_table(subset(CY_2021, month == "04"), summaries = our_summary1, by = c("depthGroup"))
+by_depth_05 <- summary_table(subset(CY_2021, month == "05"), summaries = our_summary1, by = c("depthGroup"))
+by_depth_06 <- summary_table(subset(CY_2021, month == "06"), summaries = our_summary1, by = c("depthGroup"))
+by_depth_07 <- summary_table(subset(CY_2021, month == "07"), summaries = our_summary1, by = c("depthGroup"))
+by_depth_08 <- summary_table(subset(CY_2021, month == "08"), summaries = our_summary1, by = c("depthGroup"))
+by_depth_09 <- summary_table(subset(CY_2021, month == "09"), summaries = our_summary1, by = c("depthGroup"))
+by_depth_10 <- summary_table(subset(CY_2021, month == "10"), summaries = our_summary1, by = c("depthGroup"))
